@@ -5,6 +5,9 @@ import {authController} from '../controllers/auth.controller.js'
 import {loginBodySchema} from '../schemas/login-body.schema.js'
 import {authMiddleware} from '../middlewares/auth.middleware.js'
 import {userController} from '../controllers/user.controller.js'
+import {createPostBodySchema} from '../schemas/create-post-body.schema.js'
+import {getPostsQuerySchema} from '../schemas/get-posts-query.schema.js'
+import {postController} from '../controllers/post.controller.js'
 
 const router = createRouter()
 
@@ -20,6 +23,7 @@ router.use(authMiddleware)
 router.get('/user/me', userController.getMe)
 
 // - Post routes
-// ...
+router.post('/post/create', validateSchema(createPostBodySchema), postController.createPost)
+router.get('/post', validateSchema(getPostsQuerySchema), postController.getUserPosts)
 
 export default router

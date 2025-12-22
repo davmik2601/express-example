@@ -12,7 +12,7 @@ class AuthController {
   }
 
   /**
-   * Create a test
+   * Login user
    * @param {import('express').Request & {body: LoginBodySchema}} req
    */
   async login(req) {

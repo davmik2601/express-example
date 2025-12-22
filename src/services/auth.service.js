@@ -14,7 +14,7 @@ class AuthService {
    * @returns {Promise<{SuccessType}>}
    */
   async register(data) {
-    // check if test with the same key exists
+    // check if user with this email already exists
     const existingUser = await userService.getUserByEmail(data.email)
 
     if (existingUser) {
