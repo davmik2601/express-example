@@ -1,5 +1,6 @@
-import {BadRequestError} from '../utils/error-handling/http-exceptions.js'
+import {BadRequestError, ForbiddenError} from '../utils/error-handling/http-exceptions.js'
 import {pool} from '../db/pool.js'
+import {postEventsPublisher} from '../amqp/post-events.publisher.js'
 
 class PostService {
   /**
@@ -8,7 +9,13 @@ class PostService {
    * @param {Object} data
    * @param {string} data.text
    * @param {boolean} data.isPublic
-   * @returns {Promise<{id: number}>}
+   * @returns {Promise<{
+   *   id: number,
+   *   userId: number,
+   *   text: string,
+   *   isPublic: boolean,
+   *   createdAt: Date,
+   * }>}
    */
   async createPost(userId, {text, isPublic}) {
     // check if user riches post limit
@@ -27,12 +34,49 @@ class PostService {
         values ($1, $2, $3)
         returning
             id as "id",
+            user_id as "userId",
             text as "text",
             is_public as "isPublic",
             created_at as "createdAt"
     `, [userId, text, isPublic])
 
+    // async work trigger
+    await postEventsPublisher.postCreated({postId: post.id, userId: post.userId})
+
     return post
+  }
+
+  /**
+   * Delete a user post
+   * @param {number} userId
+   * @param {number} postId
+   * @returns {Promise<SuccessType>}
+   */
+  async deletePost(userId, postId) {
+    const {rows: [post]} = await pool.query(`
+        select id      as "id",
+               user_id as "userId"
+        from posts
+        where id = $1
+    `, [postId])
+
+    if (!post) {
+      throw new BadRequestError('Post not found')
+    }
+    if (post.userId !== userId) {
+      throw new ForbiddenError('You have not access to delete this post')
+    }
+
+    await pool.query(`
+        delete
+        from posts
+        where id = $1
+    `, [postId])
+
+    // async work trigger
+    await postEventsPublisher.postDeleted({postId, userId})
+
+    return {success: true}
   }
 
   /**

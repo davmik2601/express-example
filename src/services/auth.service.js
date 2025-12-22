@@ -38,7 +38,7 @@ class AuthService {
     const user = await userService.getUserByEmail(data.email)
 
     if (user) {
-      if(this.verifyPassword(data.password, user.password)) {
+      if (this.verifyPassword(data.password, user.password)) {
         const token = jwtService.generateToken({
           id: user.id,
         })

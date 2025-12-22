@@ -16,6 +16,14 @@ class PostController {
   async getUserPosts(req) {
     return postService.getPosts(req.user.id, req.query)
   }
+
+  /**
+   * Delete the post
+   * @param {AuthRequestType & {body: DeletePostBodySchema}} req
+   */
+  async deletePost(req) {
+    return postService.deletePost(req.user.id, req.body.id)
+  }
 }
 
 export const postController = new PostController()

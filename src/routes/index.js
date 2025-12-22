@@ -8,6 +8,7 @@ import {userController} from '../controllers/user.controller.js'
 import {createPostBodySchema} from '../schemas/create-post-body.schema.js'
 import {getPostsQuerySchema} from '../schemas/get-posts-query.schema.js'
 import {postController} from '../controllers/post.controller.js'
+import {deletePostBodySchema} from '../schemas/delete-post-body.schema.js'
 
 const router = createRouter()
 
@@ -24,6 +25,7 @@ router.get('/user/me', userController.getMe)
 
 // - Post routes
 router.post('/post/create', validateSchema(createPostBodySchema), postController.createPost)
+router.post('/post/delete', validateSchema(deletePostBodySchema), postController.deletePost)
 router.get('/post', validateSchema(getPostsQuerySchema), postController.getUserPosts)
 
 export default router
