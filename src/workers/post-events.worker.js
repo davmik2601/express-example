@@ -1,9 +1,9 @@
 import {getChannel} from '../amqp/amqp.connection.js'
-import {PostEventsConsumer} from '../amqp/consumers/post-events.consumer.js'
+import {PostConsumer} from '../amqp/consumers/post.consumer.js'
 
 async function start() {
   const ch = await getChannel()
-  const consumer = new PostEventsConsumer({channel: ch})
+  const consumer = new PostConsumer({channel: ch})
   await consumer.start()
 }
 

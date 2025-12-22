@@ -2,7 +2,7 @@ import {Consumer} from './consumer.js'
 import {POST_QUEUE} from '../rabbit-queues.js'
 import {notificationService} from '../../services/notification.service.js'
 
-export class PostEventsConsumer extends Consumer {
+export class PostConsumer extends Consumer {
   /**
    * @param {{channel: import('amqplib').Channel}} deps
    */
@@ -54,7 +54,7 @@ export class PostEventsConsumer extends Consumer {
       }
 
       default: {
-        console.warn('Unknown post-events message:', payload)
+        console.warn('Unknown post consumer message:', payload)
         break
       }
     }
