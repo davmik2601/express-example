@@ -14,12 +14,13 @@ Sentry.init({
     Sentry.redisIntegration(),
     Sentry.requestDataIntegration(),
   ],
-  beforeSend(event, hint) {
-    const err = hint?.originalException
-    const code = err?.statusCode ?? err?.status
-    if (typeof code === 'number' && code < 500) {
-      return null
-    }
+  beforeSend(event, _hint) {
+    /** if needed, we can filter out events here */
+    // const err = hint?.originalException
+    // const code = err?.statusCode ?? err?.status
+    // if (typeof code === 'number' && code < 500) {
+    //   return null
+    // }
     return event
   },
   release: 'express-example',
