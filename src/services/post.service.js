@@ -47,39 +47,6 @@ class PostService {
   }
 
   /**
-   * Delete a user post
-   * @param {number} userId
-   * @param {number} postId
-   * @returns {Promise<SuccessType>}
-   */
-  async deletePost(userId, postId) {
-    const {rows: [post]} = await pool.query(`
-        select id      as "id",
-               user_id as "userId"
-        from posts
-        where id = $1
-    `, [postId])
-
-    if (!post) {
-      throw new BadRequestError('Post not found')
-    }
-    if (post.userId !== userId) {
-      throw new ForbiddenError('You have not access to delete this post')
-    }
-
-    await pool.query(`
-        delete
-        from posts
-        where id = $1
-    `, [postId])
-
-    // async work trigger
-    await postEventsPublisher.postDeleted({postId, userId})
-
-    return {success: true}
-  }
-
-  /**
    * Get user posts
    * @param {number} userId
    * @param {Object} data
@@ -116,6 +83,39 @@ class PostService {
       posts: posts.map(({totalCount, ...rest}) => rest), // exclude totalCount from posts
       meta: {count: Number(posts[0]?.totalCount || 0)},
     }
+  }
+
+  /**
+   * Delete a user post
+   * @param {number} userId
+   * @param {number} postId
+   * @returns {Promise<SuccessType>}
+   */
+  async deletePost(userId, postId) {
+    const {rows: [post]} = await pool.query(`
+        select id      as "id",
+               user_id as "userId"
+        from posts
+        where id = $1
+    `, [postId])
+
+    if (!post) {
+      throw new BadRequestError('Post not found')
+    }
+    if (post.userId !== userId) {
+      throw new ForbiddenError('You have not access to delete this post')
+    }
+
+    await pool.query(`
+        delete
+        from posts
+        where id = $1
+    `, [postId])
+
+    // async work trigger
+    await postEventsPublisher.postDeleted({postId, userId})
+
+    return {success: true}
   }
 }
 
