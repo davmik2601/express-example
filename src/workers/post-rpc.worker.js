@@ -1,9 +1,11 @@
+import 'dotenv/config'
+import '../utils/sentry/sentry-instrument.js'
 import {getChannel} from '../amqp/amqp.connection.js'
-import {PostEventsConsumer} from '../amqp/consumers/post-events.consumer.js'
+import {PostRpcConsumer} from '../amqp/consumers/post-rpc.consumer.js'
 
 async function start() {
   const ch = await getChannel()
-  const consumer = new PostEventsConsumer({channel: ch})
+  const consumer = new PostRpcConsumer({channel: ch})
   await consumer.start()
 }
 

@@ -1,6 +1,7 @@
 import {BadRequestError, ForbiddenError} from '../utils/error-handling/http-exceptions.js'
 import {pool} from '../db/pool.js'
-import {postEventsPublisher} from '../amqp/post-events.publisher.js'
+import {postProducer} from '../amqp/producers/post.producer.js'
+import {postRpcClient} from '../amqp/clients/post-rpc.client.js'
 
 class PostService {
   /**
@@ -18,15 +19,21 @@ class PostService {
    * }>}
    */
   async createPost(userId, {text, isPublic}) {
-    // check if user riches post limit
-    const {rows: [{postsCount}]} = await pool.query(`
-        select count(*) as "postsCount"
-        from posts
-        where user_id = $1
-    `, [userId])
+    // // check if user riches post limit
+    // const {rows: [{postsCount}]} = await pool.query(`
+    //     select count(*) as "postsCount"
+    //     from posts
+    //     where user_id = $1
+    // `, [userId])
+    //
+    // if (postsCount > 10) {
+    //   throw new ForbiddenError('User post limit reached')
+    // }
 
-    if (postsCount > 10) {
-      throw new BadRequestError('User post limit reached')
+    const rpcResp = await postRpcClient.canCreatePost({userId})
+
+    if (!rpcResp.allowed) {
+      throw new ForbiddenError(rpcResp.reason || 'Not allowed')
     }
 
     const {rows: [post]} = await pool.query(`
@@ -41,9 +48,24 @@ class PostService {
     `, [userId, text, isPublic])
 
     // async work trigger
-    await postEventsPublisher.postCreated({postId: post.id, userId: post.userId})
+    await postProducer.postCreated({postId: post.id, userId: post.userId})
 
     return post
+  }
+
+  /**
+   * Check if user can create a post
+   * @param {number} userId
+   * @returns {Promise<boolean>}
+   */
+  async checkPostLimit(userId) {
+    const {rows: [{count}]} = await pool.query(`
+        select count(*)::int as "count"
+        from posts
+        where user_id = $1
+    `, [userId])
+
+    return count < 10
   }
 
   /**
@@ -113,7 +135,7 @@ class PostService {
     `, [postId])
 
     // async work trigger
-    await postEventsPublisher.postDeleted({postId, userId})
+    await postProducer.postDeleted({postId, userId})
 
     return {success: true}
   }

@@ -16,17 +16,5 @@ export async function sentryMiddleware(req, res, next) {
 
   Sentry.setTag('request_id', requestId)
 
-  // // set user info if available.
-  // // Better: set user in auth middleware (recommended).
-  // if (req.user) {
-  //   Sentry.setUser({
-  //     id: req.user?.id,
-  //     username: req.user?.username,
-  //     ip_address: getIP(req),
-  //   })
-  // } else {
-  //   Sentry.setUser(null)
-  // }
-
   next()
 }
