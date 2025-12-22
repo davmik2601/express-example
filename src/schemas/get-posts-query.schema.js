@@ -1,10 +1,13 @@
 import {z} from 'zod'
+import {limitOffsetSchema} from '../common/types/limit-offset.schema.js'
 
 /**
- * @typedef {Object} GetPostsQuerySchema
- * @property {boolean} [isPublic]
+ * @typedef {
+ * LimitOffsetSchema & {
+ *   isPublic?: boolean
+ * }} GetPostsQuerySchema
  */
 
-export const getPostsQuerySchema = z.object({
+export const getPostsQuerySchema = limitOffsetSchema.extend({
   isPublic: z.coerce.boolean().optional(),
 })
