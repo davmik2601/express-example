@@ -10,7 +10,6 @@ export const routeHandler = (fn) => {
   return async (req, res, next) => {
     try {
       const result = await fn(req, res)
-      console.log({result})
       res.json(result)
     } catch (err) {
       next(err) // Passes error to Express error handler

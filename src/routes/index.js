@@ -1,14 +1,25 @@
 import {createRouter} from '../utils/route-handling/create-router.js'
-import {validateQuerySchema, validateSchema} from '../utils/error-handling/validate-schema.js'
-import {testController} from '../controllers/test.controller.js'
-import {createTestBodySchema} from '../schemas/create-test-body.schema.js'
-import {getTestsQuerySchema} from '../schemas/get-tests-query.schema.js'
+import {validateSchema} from '../utils/error-handling/validate-schema.js'
+import {registerBodySchema} from '../schemas/register-body.schema.js'
+import {authController} from '../controllers/auth.controller.js'
+import {loginBodySchema} from '../schemas/login-body.schema.js'
+import {authMiddleware} from '../middlewares/auth.middleware.js'
+import {userController} from '../controllers/user.controller.js'
 
 const router = createRouter()
 
-// create test
-router.post('/test/create', validateSchema(createTestBodySchema), testController.createTest)
-// get tests
-router.get('/test/get-all', validateQuerySchema(getTestsQuerySchema), testController.getTests)
+// - Auth routes
+router.post('/auth/register', validateSchema(registerBodySchema), authController.register)
+router.post('/auth/login', validateSchema(loginBodySchema), authController.login)
+
+// everything below requires auth
+router.use(authMiddleware)
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+// - User routes
+router.get('/user/me', userController.getMe)
+
+// - Post routes
+// ...
 
 export default router

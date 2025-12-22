@@ -1,4 +1,4 @@
-import {BadRequestError} from '../utils/error-handling/http-exceptions.js'
+import {BadRequestError, InternalServerError} from '../utils/error-handling/http-exceptions.js'
 import {pool} from '../db/pool.js'
 
 class TestService {
@@ -51,12 +51,17 @@ class TestService {
    * }>}
    */
   async getTests({count, isActive, offset = 0, limit = 20}) {
-    const {rows: tests} = await pool.query(`
-        select id          as "id",
-               key         as "key",
-               description as "description",
-               count       as "count",
-               is_active   as "isActive"
+    throw new InternalServerError(`New Error here`)
+
+    const {rows: tests} =
+      /** @type {rows: Array<object & {totalCount: number}>} */
+      await pool.query(`
+        select id               as "id",
+               key              as "key",
+               description      as "description",
+               count            as "count",
+               is_active        as "isActive",
+               count(*) over () as total_count
         from tests
         where ($1::int is null or count = $1)
           and ($2::boolean is null or is_active = $2)
@@ -64,7 +69,10 @@ class TestService {
         offset $3 limit $4
     `, [count || null, isActive || null, offset, limit])
 
-    return tests
+    return {
+      tests: tests.map(({totalCount, ...rest}) => rest),
+      meta: {count: Number(tests[0]?.totalCount || 0)},
+    }
   }
 }
 
