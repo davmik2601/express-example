@@ -5,14 +5,15 @@ import apiRoutes from './routes/index.js'
 import {errorHandler} from './utils/error-handling/error.handler.js'
 import {notFoundHandler} from './utils/error-handling/not-found.handler.js'
 import * as Sentry from '@sentry/node'
-import {sentryMiddleware} from './utils/sentry/sentry.middleware.js'
+import {requestMiddleware} from './middlewares/request.middleware.js'
 
 
 const app = express()
 
 app.use(express.json())
 
-app.use(sentryMiddleware)
+// creating request namespace and setting request ID
+app.use(requestMiddleware)
 
 // API routes
 app.use('/api', apiRoutes)

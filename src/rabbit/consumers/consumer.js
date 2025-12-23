@@ -1,4 +1,5 @@
 import * as Sentry from '@sentry/node'
+import {applyAmqpScope} from '../helpers/sentry-amqp.js'
 
 /**
  * Base class for RabbitMQ event consumers (no response expected).
@@ -39,8 +40,8 @@ export class Consumer {
 
   /**
    * Child class must implement this.
-   * @param {any} payload
-   * @param {import('amqplib').Message} msg
+   * @param {any} _payload
+   * @param {import('amqplib').Message} _msg
    * @returns {Promise<void>}
    */
   async handle(_payload, _msg) {
@@ -61,26 +62,25 @@ export class Consumer {
       payload = JSON.parse(msg.content.toString())
 
       await Sentry.withScope(async (scope) => {
-        scope.setTag('source', 'amqp')
-        scope.setTag('kind', 'event')
-        scope.setTag('queue', this.queue)
-
-        if (payload?.type) scope.setTag('event_type', payload.type)
-        if (msg.properties?.correlationId) scope.setTag('correlation_id', msg.properties.correlationId)
-
-        if (payload?.data?.userId) {
-          scope.setUser({id: String(payload.data.userId)})
-        }
-
-        scope.setContext('amqp_payload', payload)
-
+        applyAmqpScope(scope, {
+          kind: 'event',
+          queue: this.queue,
+          payload,
+          msg,
+          typeTagName: 'event_type',
+          typeValue: payload?.type,
+        })
         await this.handle(payload, msg)
       })
 
       this.channel.ack(msg, false)
     } catch (err) {
       console.error(err)
-      Sentry.captureException(err)
+
+      Sentry.withScope((scope) => {
+        applyAmqpScope(scope, {kind: 'event', queue: this.queue, payload, msg})
+        Sentry.captureException(err)
+      })
 
       // For events: decide retry/drop policy
       this.channel.nack(msg, false, this.requeueOnError)

@@ -1,4 +1,5 @@
 import * as Sentry from '@sentry/node'
+import {applyAmqpScope} from '../helpers/sentry-amqp.js'
 
 /**
  * Base class for RabbitMQ RPC consumers.
@@ -38,8 +39,8 @@ export class RpcConsumer {
   /**
    * Child class must implement this.
    * Must return an object which will be JSON-serialized as RPC response.
-   * @param {any} payload
-   * @param {import('amqplib').Message} msg
+   * @param {any} _payload
+   * @param {import('amqplib').Message} _msg
    * @returns {Promise<any>}
    */
   async handle(_payload, _msg) {
@@ -71,18 +72,14 @@ export class RpcConsumer {
       payload = JSON.parse(msg.content.toString())
 
       const response = await Sentry.withScope(async (scope) => {
-        scope.setTag('source', 'amqp')
-        scope.setTag('kind', 'rpc')
-        scope.setTag('queue', this.queue)
-
-        if (payload?.type) scope.setTag('rpc_type', payload.type)
-        if (msg.properties?.correlationId) scope.setTag('correlation_id', msg.properties.correlationId)
-
-        if (payload?.data?.userId) {
-          scope.setUser({id: String(payload.data.userId)})
-        }
-
-        scope.setContext('amqp_payload', payload)
+        applyAmqpScope(scope, {
+          kind: 'rpc',
+          queue: this.queue,
+          payload,
+          msg,
+          typeTagName: 'rpc_type',
+          typeValue: payload?.type,
+        })
 
         // must return response
         return await this.handle(payload, msg)
@@ -92,7 +89,12 @@ export class RpcConsumer {
       this.channel.ack(msg, false)
     } catch (err) {
       console.error(err)
-      Sentry.captureException(err)
+
+      Sentry.withScope((scope) => {
+        applyAmqpScope(scope, {kind: 'rpc', queue: this.queue, payload, msg})
+        if (payload?.type) scope.setTag('rpc_type', payload.type) // optional if helper not set it
+        Sentry.captureException(err)
+      })
 
       // Always reply so client won't time out
       const errorResponse = this.buildErrorResponse(err, payload)
@@ -113,10 +115,18 @@ export class RpcConsumer {
     const replyTo = msg.properties?.replyTo
     if (!replyTo) return
 
+    const headers = msg.properties?.headers || {}
+
     this.channel.sendToQueue(
       replyTo,
       Buffer.from(JSON.stringify(response)),
-      {correlationId: msg.properties.correlationId},
+      {
+        correlationId: msg.properties.correlationId,
+        headers: {
+          request_id: headers.request_id,
+          user_id: headers.user_id ? headers.user_id : undefined,
+        },
+      },
     )
   }
 }

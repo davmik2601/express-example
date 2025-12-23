@@ -1,7 +1,7 @@
 import {BadRequestError, ForbiddenError} from '../utils/error-handling/http-exceptions.js'
 import {pool} from '../db/pool.js'
-import {postProducer} from '../amqp/producers/post.producer.js'
-import {postRpcClient} from '../amqp/clients/post-rpc.client.js'
+import {postProducer} from '../rabbit/producers/post.producer.js'
+import {postRpcClient} from '../rabbit/clients/post-rpc.client.js'
 
 class PostService {
   /**

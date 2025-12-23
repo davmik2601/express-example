@@ -1,6 +1,7 @@
 import {randomUUID} from 'node:crypto'
 import * as Sentry from '@sentry/node'
 import {getChannel} from '../amqp.connection.js'
+import {requestContext} from '../../utils/request-context.js'
 
 export class RpcClient {
   /**
@@ -26,6 +27,9 @@ export class RpcClient {
 
     const timeoutMs = options.timeoutMs ?? this.timeoutMs
 
+    const requestId = requestContext.getRequestId()
+    const userId = requestContext.getUserId()
+
     return new Promise(async (resolve, reject) => {
       const timer = setTimeout(() => {
         Sentry.withScope((scope) => {
@@ -34,6 +38,8 @@ export class RpcClient {
           scope.setTag('queue', this.queue)
           scope.setTag('rpc_type', type)
           scope.setTag('correlation_id', correlationId)
+          if (requestId) scope.setTag('request_id', String(requestId))
+          if (userId) scope.setUser({id: String(userId)})
           scope.setContext('rpc_request', {type, data})
           Sentry.captureException(new Error('RPC timeout'))
         })
@@ -52,8 +58,18 @@ export class RpcClient {
           try {
             const response = JSON.parse(msg.content.toString())
             resolve(response)
-          } catch (e) {
-            Sentry.captureException(e)
+          } catch (err) {
+            Sentry.withScope((scope) => {
+              scope.setTag('source', 'amqp')
+              scope.setTag('kind', 'rpc-client')
+              scope.setTag('queue', this.queue)
+              scope.setTag('rpc_type', type)
+              scope.setTag('correlation_id', correlationId)
+              if (requestId) scope.setTag('request_id', String(requestId))
+              if (userId) scope.setUser({id: String(userId)})
+              scope.setContext('rpc_reply_raw', msg.content.toString())
+              Sentry.captureException(err)
+            })
             reject(e)
           }
         },
@@ -66,6 +82,10 @@ export class RpcClient {
         {
           correlationId,
           replyTo: replyQueue,
+          headers: {
+            request_id: requestId,
+            user_id: userId ? String(userId) : undefined,
+          },
         },
       )
     })

@@ -1,7 +1,7 @@
 import 'dotenv/config'
 import '../utils/sentry/sentry-instrument.js'
-import {getChannel} from '../amqp/amqp.connection.js'
-import {PostRpcConsumer} from '../amqp/consumers/post-rpc.consumer.js'
+import {getChannel} from '../rabbit/amqp.connection.js'
+import {PostRpcConsumer} from '../rabbit/consumers/post-rpc.consumer.js'
 
 async function start() {
   const ch = await getChannel()

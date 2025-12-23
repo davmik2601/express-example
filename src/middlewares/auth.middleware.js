@@ -3,6 +3,7 @@ import {userService} from '../services/user.service.js'
 import {UnauthorizedError} from '../utils/error-handling/http-exceptions.js'
 import * as Sentry from '@sentry/node'
 import {getIP} from '../utils/get-ip.js'
+import {requestContext} from '../utils/request-context.js'
 
 export async function authMiddleware(req, res, next) {
 
@@ -19,6 +20,9 @@ export async function authMiddleware(req, res, next) {
     const user = await userService.getById(tokenInfo.id)
     if (user) {
       req.user = user
+
+      // set user id in request context
+      requestContext.setUserId(req.user.id)
 
       // set user info in Sentry
       Sentry.setUser({
