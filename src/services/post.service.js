@@ -19,17 +19,6 @@ class PostService {
    * }>}
    */
   async createPost(userId, {text, isPublic}) {
-    // // check if user riches post limit
-    // const {rows: [{postsCount}]} = await pool.query(`
-    //     select count(*) as "postsCount"
-    //     from posts
-    //     where user_id = $1
-    // `, [userId])
-    //
-    // if (postsCount > 10) {
-    //   throw new ForbiddenError('User post limit reached')
-    // }
-
     const rpcResp = await postRpcClient.canCreatePost({userId})
 
     if (!rpcResp.allowed) {
