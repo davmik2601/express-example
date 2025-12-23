@@ -13,13 +13,6 @@ class RequestContext {
   }
 
   /**
-   * @returns {{requestId?: string, userId?: number|string}}
-   */
-  getStore() {
-    return als.getStore() || {}
-  }
-
-  /**
    * @param {string} requestId
    */
   setRequestId(requestId) {
