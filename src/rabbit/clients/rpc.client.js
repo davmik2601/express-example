@@ -33,14 +33,10 @@ export class RpcClient {
     return new Promise(async (resolve, reject) => {
       const timer = setTimeout(() => {
         Sentry.withScope((scope) => {
-          scope.setTag('source', 'amqp')
-          scope.setTag('kind', 'rpc-client')
-          scope.setTag('queue', this.queue)
-          scope.setTag('rpc_type', type)
-          scope.setTag('correlation_id', correlationId)
-          if (requestId) scope.setTag('request_id', String(requestId))
-          if (userId) scope.setUser({id: String(userId)})
-          scope.setContext('rpc_request', {type, data})
+          this._makeRpcClientScope(
+            scope,
+            {type, data, correlationId, requestId, userId},
+          )
           Sentry.captureException(new Error('RPC timeout'))
         })
 
@@ -60,17 +56,11 @@ export class RpcClient {
             resolve(response)
           } catch (err) {
             Sentry.withScope((scope) => {
-              scope.setTag('source', 'amqp')
-              scope.setTag('kind', 'rpc-client')
-              scope.setTag('queue', this.queue)
-              scope.setTag('rpc_type', type)
-              scope.setTag('correlation_id', correlationId)
-              if (requestId) scope.setTag('request_id', String(requestId))
-              if (userId) scope.setUser({id: String(userId)})
+              this._makeRpcClientScope(scope, {type, data, correlationId, requestId, userId})
               scope.setContext('rpc_reply_raw', msg.content.toString())
               Sentry.captureException(err)
             })
-            reject(e)
+            reject(err)
           }
         },
         {noAck: true},
@@ -89,5 +79,16 @@ export class RpcClient {
         },
       )
     })
+  }
+
+  _makeRpcClientScope(scope, {type, data, correlationId, requestId, userId}) {
+    scope.setTag('source', 'amqp')
+    scope.setTag('kind', 'rpc-client')
+    scope.setTag('queue', this.queue)
+    scope.setTag('rpc_type', type)
+    scope.setTag('correlation_id', correlationId)
+    if (requestId) scope.setTag('request_id', String(requestId))
+    if (userId) scope.setUser({id: String(userId)})
+    scope.setContext('rpc_request', {type, data})
   }
 }
