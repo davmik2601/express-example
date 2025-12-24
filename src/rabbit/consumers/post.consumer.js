@@ -1,6 +1,7 @@
 import {Consumer} from './consumer.js'
 import {POST_QUEUE} from '../rabbit-queues.js'
 import {notificationService} from '../../services/notification.service.js'
+import {wsEventsProducer} from '../producers/ws-events.producer.js'
 
 export class PostConsumer extends Consumer {
   /**
@@ -27,7 +28,7 @@ export class PostConsumer extends Consumer {
       case 'post.created': {
         const {postId, userId} = data
 
-        await notificationService.createNotification(
+        const note = await notificationService.createNotification(
           userId,
           {
             type,
@@ -36,6 +37,9 @@ export class PostConsumer extends Consumer {
           },
         )
 
+        // send notification via ws
+        await wsEventsProducer.sendToUser(userId, 'post.created', note)
+
         console.log(`📩 notification created for user:${userId}, post:${postId}`)
         break
       }
@@ -43,11 +47,14 @@ export class PostConsumer extends Consumer {
       case 'post.deleted': {
         const {postId, userId} = data
 
-        await notificationService.createNotification(userId, {
+        const note = await notificationService.createNotification(userId, {
           type,
           refId: postId,
           message: `Your post #${postId} has been deleted.`,
         })
+
+        // send notification via ws
+        await wsEventsProducer.sendToUser(userId, 'post.deleted', note)
 
         console.log(`🥡 notification deleted for user:${userId}, post:${postId}`)
         break

@@ -6,7 +6,9 @@
   "type": "module",
   "scripts": {
     "start": "node src/server.js",
-    "dev": "nodemon src/server.js"
+    "dev": "nodemon --watch src --watch src/ws src/server.js",
+    "dev:post": "nodemon src/workers/post-events.worker.js",
+    "dev:rpcpost": "nodemon src/workers/post-rpc.worker.js"
   },
   "repository": {
     "type": "git",
@@ -26,6 +28,7 @@
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3",
     "pg": "^8.16.3",
+    "uWebSockets.js": "github:uNetworking/uWebSockets.js#v20.56.0",
     "zod": "^4.2.1"
   },
   "devDependencies": {

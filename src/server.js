@@ -6,6 +6,7 @@ import {errorHandler} from './utils/error-handling/error.handler.js'
 import {notFoundHandler} from './utils/error-handling/not-found.handler.js'
 import * as Sentry from '@sentry/node'
 import {requestMiddleware} from './middlewares/request.middleware.js'
+import {WsApp} from './ws/ws-app.js'
 
 
 const app = express()
@@ -30,6 +31,12 @@ app.use(Sentry.expressErrorHandler({
 
 // Error handling
 app.use(errorHandler)
+
+const wsApp = new WsApp({port: process.env.WS_PORT || 4040})
+wsApp.init().catch((err) => {
+  console.error('WS init failed', err)
+  process.exit(1)
+})
 
 const PORT = process.env.PORT || 3030
 
