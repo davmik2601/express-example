@@ -1,7 +1,9 @@
+import * as Sentry from '@sentry/node'
 import uWS from 'uWebSockets.js'
 import {wsClient} from './ws-client.js'
 import {getTokenFromWsUpgrade, verifyWsToken} from './ws-auth.js'
 import {startWsDeliveryConsumer} from './ws-bootstrap.js'
+import {withWsScope, normalizeRequestId} from './helpers/ws-sentry.js'
 
 export class WsApp {
   constructor({port}) {
@@ -19,13 +21,7 @@ export class WsApp {
 
   _initServer() {
     this.app.get('/ws/health', (res) => {
-      console.log('>>> HEALTH HIT')
       res.writeStatus('200 OK').end(JSON.stringify({ok: true, ...wsClient.stats()}))
-    })
-
-    this.app.any('/*', (res, req) => {
-      console.error('[HTTP]', req.getMethod(), req.getUrl(), req.getQuery())
-      res.writeStatus('404 Not Found').end('not a ws route')
     })
 
     this.app.ws('/ws/*', {
@@ -34,63 +30,98 @@ export class WsApp {
       idleTimeout: 60,
 
       upgrade: (res, req, ctx) => {
-        console.log('[UPGRADE-1]', req.getUrl(), req.getQuery())
-
         let aborted = false
         res.onAborted(() => {
           aborted = true
         })
 
+        const url = req.getUrl()
+        const query = req.getQuery()
+
+        // optional: if you pass ?rid=... from client you can parse it yourself.
+        // easiest: always generate
+        const requestId = normalizeRequestId(null)
+
         const token = getTokenFromWsUpgrade(req)
-        console.log('[UPGRADE-2] token?', token ? 'yes' : 'no')
         const user = token ? verifyWsToken(token) : null
-        console.log('[UPGRADE-3] user?', user ? String(user.id) : 'null')
 
-        if (!user) {
-          if (!aborted) res.writeStatus('401 Unauthorized').end('Unauthorized')
-          return
-        }
+        return withWsScope(
+          {stage: 'upgrade', userId: user?.id, requestId, url, query},
+          () => {
+            try {
+              if (!user) {
+                // if you want to see auth fails in Sentry:
+                Sentry.captureMessage('ws unauthorized', 'warning')
+                if (!aborted) res.writeStatus('401 Unauthorized').end('Unauthorized')
+                return
+              }
+              if (aborted) return
 
-        if (aborted) return
-
-        res.upgrade(
-          {userId: user.id},
-          req.getHeader('sec-websocket-key'),
-          req.getHeader('sec-websocket-protocol'),
-          req.getHeader('sec-websocket-extensions'),
-          ctx,
+              res.upgrade(
+                {userId: user.id, requestId},
+                req.getHeader('sec-websocket-key'),
+                req.getHeader('sec-websocket-protocol'),
+                req.getHeader('sec-websocket-extensions'),
+                ctx,
+              )
+            } catch (err) {
+              Sentry.captureException(err)
+              if (!aborted) res.writeStatus('500 Internal Server Error').end('ws upgrade error')
+            }
+          },
         )
       },
 
       open: (ws) => {
-        const {userId} = ws.getUserData() || {}
-        console.log('[OPEN]', String(userId))
-        if (userId) wsClient.add(Number(userId), ws)
+        const {userId, requestId} = ws.getUserData() || {}
 
-        // if you want only 1 tab per user:
-        // if (userId) wsClient.kickOthers(Number(userId), ws)
+        return withWsScope({stage: 'open', userId, requestId}, () => {
+          try {
+            if (userId) wsClient.add(Number(userId), ws)
 
-        ws.send(JSON.stringify({type: 'hello', data: {userId}}))
+            // if you want only 1 tab per user:
+            // if (userId) wsClient.kickOthers(Number(userId), ws)
+
+            ws.send(JSON.stringify({type: 'hello', data: {userId}}))
+          } catch (err) {
+            Sentry.captureException(err)
+          }
+        })
       },
 
       message: (ws, message, isBinary) => {
-        if (isBinary) return
-        const text = Buffer.from(message).toString('utf8')
+        const {userId, requestId} = ws.getUserData() || {}
 
-        if (text === 'ping') {
-          ws.send('pong')
-          return
-        }
+        return withWsScope({stage: 'message', userId, requestId}, () => {
+          try {
+            if (isBinary) return
 
-        ws.send(JSON.stringify({type: 'echo', data: text}))
+            const text = Buffer.from(message).toString('utf8')
+
+            if (text === 'ping') {
+              ws.send('pong')
+              return
+            }
+
+            ws.send(JSON.stringify({type: 'echo', data: text}))
+          } catch (err) {
+            Sentry.captureException(err)
+          }
+        })
       },
 
+
       close: (ws) => {
-        const {userId} = ws.getUserData() || {}
-        // console.log('[CLOSE]', String(userId))
-        console.log('[CLOSE]', String(userId))
-        if (userId) wsClient.remove(Number(userId), ws)
-        else wsClient.removeEverywhere(ws)
+        const {userId, requestId} = ws.getUserData() || {}
+
+        return withWsScope({stage: 'close', userId, requestId}, () => {
+          try {
+            if (userId) wsClient.remove(Number(userId), ws)
+            else wsClient.removeEverywhere(ws)
+          } catch (err) {
+            Sentry.captureException(err)
+          }
+        })
       },
     })
 
