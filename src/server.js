@@ -32,7 +32,7 @@ app.use(Sentry.expressErrorHandler({
 // Error handling
 app.use(errorHandler)
 
-const wsApp = new WsApp({port: process.env.WS_PORT || 4040})
+const wsApp = new WsApp({port: Number(process.env.WS_PORT || 4040)})
 wsApp.init().catch((err) => {
   console.error('WS init failed', err)
   process.exit(1)
