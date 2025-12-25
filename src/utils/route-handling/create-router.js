@@ -10,15 +10,19 @@ import {routeHandler} from './router.handler.js'
  * - Supports: `get`, `post`, `put`, `patch`, `delete`.
  *
  * @returns {import('express').Router}
- // * @returns {any}
  */
 export function createRouter() {
   const router = Router()
   const methods = ['get', 'post', 'put', 'patch', 'delete']
 
   for (const method of methods) {
+    /** @type {Function} */
     const original = router[method]
 
+    /**
+     * @param {string} path
+     * @param  {...import('express').RequestHandler} handlers
+     */
     router[method] = (path, ...handlers) => {
       // flatten in case someone passes arrays of handlers
       const flat = handlers.flat()
@@ -35,7 +39,14 @@ export function createRouter() {
 
       // wrap only functions AFTER the last middleware; leave middlewares as-is
       const wrapped = flat.map((h, i) =>
-        typeof h === 'function' && i > lastMwIndex ? routeHandler(h) : h,
+        typeof h === 'function' && i > lastMwIndex
+          ? routeHandler(
+            /** @type {(req: import('express').Request,
+             *          res: import('express').Response,
+             *          next?: import('express').NextFunction) => any}
+             */ (h),
+          )
+          : h,
       )
 
       return original.call(router, path, ...wrapped)

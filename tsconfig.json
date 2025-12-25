@@ -9,18 +9,12 @@
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    //    "declaration": true,
-    //    "removeComments": true,
-    //    "emitDecoratorMetadata": true,
-    //    "experimentalDecorators": true,
-    //    "allowSyntheticDefaultImports": true,
-    //    "sourceMap": true,
-    //    "incremental": true,
-    //    "strictNullChecks": false,
-    //    "noImplicitAny": false,
-    //    "strictBindCallApply": false,
-    //    "forceConsistentCasingInFileNames": false,
-    //    "noFallthroughCasesInSwitch": false,
+
+    "noImplicitAny": false,
+//    "strictNullChecks": false,
+
+//    "allowSyntheticDefaultImports": true,
+//    "strictBindCallApply": false,
 
     "baseUrl": "./",
     "typeRoots": [
