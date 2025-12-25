@@ -9,10 +9,8 @@
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-
     "noImplicitAny": false,
-
-//    "strictNullChecks": false,
+    //    "strictNullChecks": false,
 
     "baseUrl": "./",
     "typeRoots": [

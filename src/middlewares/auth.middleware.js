@@ -5,8 +5,12 @@ import * as Sentry from '@sentry/node'
 import {getIP} from '../utils/get-ip.js'
 import {requestContext} from '../utils/request-context.js'
 
-export async function authMiddleware(req, res, next) {
-
+/**
+ * @param {import("express").Request} req
+ * @param {import("express").Response} _res
+ * @param {import("express").NextFunction} next
+ */
+export async function authMiddleware(req, _res, next) {
   const authHeader = req.headers['authorization']
   const token = authHeader && authHeader.split(' ')[1]
 

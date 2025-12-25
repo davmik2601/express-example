@@ -13,7 +13,7 @@ types.setTypeParser(
 /** @type {import('pg').Pool} */
 export const pool = new Pool({
   host: process.env.PG_HOST,
-  port: +process.env.PG_PORT,
+  port: +(process.env.PG_PORT || 5432),
   user: process.env.PG_USER,
   password: process.env.PG_PASSWORD,
   database: process.env.PG_DATABASE,
@@ -48,7 +48,7 @@ setInterval(() => {
     const waiting = pool.waitingCount   // queued requests
 
     if (!idle && total) {
-      console.warn('#', getCurrentDatetime(), 'POOL INFO', JSON.stringify([
+      console.warn('#', /* TODO: getCurrentDatetime() here , */ 'POOL INFO', JSON.stringify([
         total,
         idle,
         waiting,

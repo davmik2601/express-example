@@ -2,6 +2,14 @@ declare global {
   /** Global types
    * * * * * * * * * * * * * * * * * * * * * * * * * */
 
+  namespace Express {
+    interface Request {
+      id: string;
+      user?: AuthUserType;
+      // other custom properties can be added here for req
+    }
+  }
+
   type ZodShapeFor<T> =
     { [K in RequiredKeys<T>]: ZodTypeAny } &
     { [K in OptionalKeys<T>]?: ZodTypeAny }
