@@ -35,7 +35,7 @@ export const validateSchema =
           statusCode: 422,
           field: '',
           code: '',
-          message: [err.message ? `Validation failed: ${err.message}` : 'Validation failed'],
+          message: err.message ? `Validation failed: ${err.message}` : 'Validation failed',
           errorType: 'Bad Request',
         }
 
@@ -61,6 +61,14 @@ export const validateSchema =
       }
     }
 
+/**
+ * @template T
+ * @param {import('zod').ZodSchema<T>} schema - Zod schema object
+ */
 export const validateQuerySchema = (schema) => validateSchema(schema, 'query')
 
+/**
+ * @template T
+ * @param {import('zod').ZodSchema<T>} schema - Zod schema object
+ */
 export const validateParamsSchema = (schema) => validateSchema(schema, 'params')

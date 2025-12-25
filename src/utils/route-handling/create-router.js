@@ -11,19 +11,20 @@ import {routeHandler} from './router.handler.js'
  *
  * @returns {import('express').Router}
  */
-export function createRouter() {
+export const createRouter = () => {
   const router = Router()
   const methods = ['get', 'post', 'put', 'patch', 'delete']
 
   for (const method of methods) {
+    const m = /** @type {'get'|'post'|'put'|'patch'|'delete'} */ (method)
     /** @type {Function} */
-    const original = router[method]
+    const original = router[m]
 
     /**
-     * @param {string} path
-     * @param  {...import('express').RequestHandler} handlers
+     * @param {import('express-serve-static-core').PathParams} path
+     * @param  {...import('express-serve-static-core').RequestHandlerParams} handlers
      */
-    router[method] = (path, ...handlers) => {
+    router[m] = (path, ...handlers) => {
       // flatten in case someone passes arrays of handlers
       const flat = handlers.flat()
 

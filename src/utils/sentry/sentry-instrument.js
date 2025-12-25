@@ -9,7 +9,7 @@ Sentry.init({
     Sentry.expressIntegration(),
     nodeProfilingIntegration(),
     Sentry.prismaIntegration(),
-    Sentry.getAutoPerformanceIntegrations(),
+    ...Sentry.getAutoPerformanceIntegrations(),
     Sentry.mysql2Integration(),
     Sentry.redisIntegration(),
     Sentry.requestDataIntegration(),

@@ -1,7 +1,7 @@
 import {HttpError} from './http-error.js'
 
 /** @type {import('express').ErrorRequestHandler} */
-export const errorHandler = (err, req, res, _next) => {
+export const errorHandler = (err, _req, res, _next) => {
   // Default values
   let statusCode = 500
   let errorType = 'Internal Server Error'
@@ -25,5 +25,5 @@ export const errorHandler = (err, req, res, _next) => {
 
   console.error(err)
 
-  res.status(statusCode).json(payload)
+  return res.status(statusCode).json(payload)
 }

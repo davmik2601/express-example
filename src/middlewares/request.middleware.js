@@ -7,7 +7,7 @@ import * as Sentry from '@sentry/node'
  * @param {import("express").Response} res
  * @param {import("express").NextFunction} next
  */
-export function requestMiddleware(req, res, next) {
+export const requestMiddleware = (req, res, next) => {
   const requestId = /** @type string */ (req.headers['x-request-id'] || randomUUID())
 
   req.id = requestId

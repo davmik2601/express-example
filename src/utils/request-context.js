@@ -5,8 +5,9 @@ const als = new AsyncLocalStorage()
 class RequestContext {
   /**
    * Run function inside request context.
+   * @template T
    * @param {{requestId?: string, userId?: number|string}} initial
-   * @param {Function} fn
+   * @param {() => T} fn
    */
   run(initial, fn) {
     als.run({...initial}, fn)

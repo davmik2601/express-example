@@ -1,5 +1,10 @@
 import {HttpError} from './http-error.js'
 
+/**
+ * A union for message or object payloads.
+ * @typedef {string | (Record<string, any> & {message?: string})} MessageOrObject
+ */
+
 /** 400 Bad Request */
 export class BadRequestError extends HttpError {
   /**
