@@ -36,7 +36,6 @@ declare global {
     type DeletePostDto = import('./post/dto/delete-post.dto').DeletePostDto
     type GetPostsDto = import('./post/dto/get-posts.dto').GetPostsDto
     type GetPostsType = import('./post/get-posts.type').GetPostsType
-    type GetPostsItemType = import('./post/get-posts.type').GetPostsItemType
   }
 
   namespace Notifications {

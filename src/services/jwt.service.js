@@ -3,8 +3,11 @@ import {UnauthorizedError} from '../utils/error-handling/http-exceptions.js'
 
 class JwtService {
   constructor() {
+    /** @type {import('jsonwebtoken').Secret} */
     this.secretKey = process.env.JWT_SECRET || 'secret529385627563223'
-    this.expire = process.env.JWT_EXPIRE || '1h'
+
+    /** @type {import('jsonwebtoken').SignOptions['expiresIn']} */
+    this.expire = /** @type {any} */ (process.env.JWT_EXPIRE ?? '1h')
   }
 
   /**
@@ -22,8 +25,8 @@ class JwtService {
    * @returns {*}
    */
   verifyToken(token) {
-    /** @type {ReqUserType | undefined} */
-    const decoded = jwt.verify(token, this.secretKey)
+    const decoded =
+      /** @type {AuthUserType | undefined} */ jwt.verify(token, this.secretKey)
 
     if (!decoded) {
       throw new UnauthorizedError('Invalid token')

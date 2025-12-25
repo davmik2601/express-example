@@ -5,7 +5,7 @@ export interface GetPostsType {
   meta: MetaType
 }
 
-export interface GetPostsItemType {
+interface GetPostsItemType {
   id: number,
   text: string,
   isPublic: boolean,

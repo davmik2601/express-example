@@ -1,5 +1,5 @@
 import {z} from 'zod'
-import {limitOffsetSchema} from '../common/types/limit-offset.schema.js'
+import {limitOffsetSchema} from './limit-offset.schema.js'
 
 /** @type {import('zod').ZodObject<ZodShapeFor<Posts.GetPostsDto>>} */
 export const getPostsQuerySchema = limitOffsetSchema.extend({
