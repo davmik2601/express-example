@@ -1,11 +1,6 @@
 import {z} from 'zod'
 
-/**
- * @typedef {Object} LoginBodySchema
- * @property {string} email
- * @property {string} password
- */
-
+/** @type {import('zod').ZodObject<ZodShapeFor<Auth.LoginDto>>} */
 export const loginBodySchema = z.object({
   email: z.string().trim().toLowerCase().pipe(z.email()),
   password: z.string().nonempty(),

@@ -8,7 +8,8 @@
     "start": "node src/server.js",
     "dev": "nodemon --watch src --watch src/ws src/server.js",
     "dev:post": "nodemon src/workers/post-events.worker.js",
-    "dev:rpcpost": "nodemon src/workers/post-rpc.worker.js"
+    "dev:rpcpost": "nodemon src/workers/post-rpc.worker.js",
+    "typecheck": "tsc --noEmit"
   },
   "repository": {
     "type": "git",
@@ -32,6 +33,8 @@
     "zod": "^4.2.1"
   },
   "devDependencies": {
-    "nodemon": "^3.1.11"
+    "@types/express": "^5.0.6",
+    "nodemon": "^3.1.11",
+    "typescript": "^5.9.3"
   }
 }

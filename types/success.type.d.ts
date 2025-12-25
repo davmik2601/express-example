@@ -1,3 +1,3 @@
 export interface SuccessType {
-  success: boolean;
+  success: boolean
 }

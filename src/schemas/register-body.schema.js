@@ -1,13 +1,6 @@
 import {z} from 'zod'
 
-/**
- * @typedef {Object} RegisterBodySchema
- * @property {string} name
- * @property {string} email
- * @property {string} password
- * @property {number} [age]
- */
-
+/** @type {import('zod').ZodObject<ZodShapeFor<Auth.RegisterDto>>} */
 export const registerBodySchema = z.object({
   name: z.string().min(2).max(100),
   email: z.string().trim().toLowerCase().pipe(z.email()),

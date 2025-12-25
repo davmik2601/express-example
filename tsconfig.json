@@ -11,10 +11,8 @@
     "skipLibCheck": true,
 
     "noImplicitAny": false,
-//    "strictNullChecks": false,
 
-//    "allowSyntheticDefaultImports": true,
-//    "strictBindCallApply": false,
+//    "strictNullChecks": false,
 
     "baseUrl": "./",
     "typeRoots": [

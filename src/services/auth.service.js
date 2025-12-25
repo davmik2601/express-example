@@ -10,8 +10,8 @@ class AuthService {
 
   /**
    * Register user.
-   * @param {RegisterBodySchema} data
-   * @returns {Promise<{SuccessType}>}
+   * @param {Auth.RegisterDto} data
+   * @returns {Promise<SuccessType>}
    */
   async register(data) {
     // check if user with this email already exists
@@ -31,8 +31,8 @@ class AuthService {
 
   /**
    * Login user.
-   * @param {LoginBodySchema} data
-   * @returns {Promise<SuccessType & {token: string}>}
+   * @param {Auth.LoginDto} data
+   * @returns {Promise<Auth.LoginType>}
    */
   async login(data) {
     const user = await userService.getUserByEmail(data.email)

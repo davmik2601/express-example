@@ -2,6 +2,7 @@ class UserController {
   /**
    * Get me
    * @param {AuthRequestType} req
+   * @return {Promise<AuthUserType>}
    */
   async getMe(req) {
     return {

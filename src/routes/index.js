@@ -26,6 +26,6 @@ router.get('/user/me', userController.getMe)
 // - Post routes
 router.post('/post/create', validateSchema(createPostBodySchema), postController.createPost)
 router.post('/post/delete', validateSchema(deletePostBodySchema), postController.deletePost)
-router.get('/post', validateSchema(getPostsQuerySchema), postController.getUserPosts)
+router.get('/post', validateSchema(getPostsQuerySchema), postController.getPosts)
 
 export default router

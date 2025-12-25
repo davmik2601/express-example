@@ -3,7 +3,8 @@ import {authService} from '../services/auth.service.js'
 class AuthController {
   /**
    * Register user
-   * @param {import('express').Request & {body: RegisterBodySchema}} req
+   * @param {import('express').Request & { body: Auth.RegisterDto }} req
+   * @returns {Promise<SuccessType>}
    */
   async register(req) {
     return authService.register(req.body)
@@ -11,7 +12,7 @@ class AuthController {
 
   /**
    * Login user
-   * @param {import('express').Request & {body: LoginBodySchema}} req
+   * @param {import('express').Request & { body: Auth.LoginDto }} req
    */
   async login(req) {
     return authService.login(req.body)

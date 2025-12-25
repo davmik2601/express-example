@@ -4,24 +4,16 @@ class NotificationService {
   /**
    * Create notification.
    * @param {number} userId
-   * @param {Object} data
-   * @param {string} data.type
-   * @param {number} [data.refId]
-   * @param {string} data.message
-   * @returns {Promise<{
-   *   id: number,
-   *   userId: number,
-   *   type: string,
-   *   refId?: number,
-   *   message: string,
-   *   createdAt: Date,
-   * }>}
+   * @param {Notifications.CreateNotificationDto} data
+   * @returns {Promise<Db.Notification>}
    */
   async createNotification(
     userId,
     {type, refId, message},
   ) {
-    const {rows: [note]} = await pool.query(`
+    const {rows: [note]} =
+      /** @type {{rows: Array<Db.Notification>}} */
+      await pool.query(`
         insert into notifications (user_id, type, ref_id, message)
         values ($1, $2, $3, $4)
         returning

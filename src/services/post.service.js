@@ -7,16 +7,8 @@ class PostService {
   /**
    * Create a new post by user.
    * @param {number} userId
-   * @param {Object} data
-   * @param {string} data.text
-   * @param {boolean} data.isPublic
-   * @returns {Promise<{
-   *   id: number,
-   *   userId: number,
-   *   text: string,
-   *   isPublic: boolean,
-   *   createdAt: Date,
-   * }>}
+   * @param {Posts.CreatePostDto} data
+   * @returns {Promise<Posts.CreatePostType>}
    */
   async createPost(userId, {text, isPublic}) {
     const rpcResp = await postRpcClient.canCreatePost({userId})
@@ -58,25 +50,17 @@ class PostService {
   }
 
   /**
-   * Get user posts
+   * Get posts
    * @param {number} userId
-   * @param {Object} data
-   * @param {boolean} [data.isPublic]
-   * @param {number} [data.offset=0]
-   * @param {number} [data.limit=20]
-   * @returns {Promise<{
-   *   posts: Array<{
-   *     id:number,
-   *     text: string,
-   *     isPublic: boolean,
-   *     createdAt: Date,
-   *   }>,
-   *   meta: MetaType
-   * }>}
+   * @param {Posts.GetPostsDto} data
+   * @returns {Promise<Posts.GetPostsType>}
    */
   async getPosts(userId, {isPublic, offset = 0, limit = 20}) {
     const {rows: posts} =
-      /** @type {rows: Array<object & {totalCount: number}>} */
+      /** @type {{rows: Array<
+       *   Pick<Db.Post, 'id' | 'text' | 'isPublic' | 'createdAt'>
+       *   & {totalCount: number}
+       * >}} */
       await pool.query(`
           select id               as "id",
                  text             as "text",
