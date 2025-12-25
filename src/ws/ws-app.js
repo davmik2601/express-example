@@ -6,6 +6,9 @@ import {startWsDeliveryConsumer} from './ws-bootstrap.js'
 import {withWsScope, normalizeRequestId} from './helpers/ws-sentry.js'
 
 export class WsApp {
+  /**
+   * @param {{port: number}} options
+   */
   constructor({port}) {
     this.port = Number(port)
     this.app = uWS.App()
@@ -125,12 +128,12 @@ export class WsApp {
       },
     })
 
-    return new Promise((resolve, reject) => {
+    return /** @type {Promise<void>} */ (new Promise((resolve, reject) => {
       this.app.listen(this.port, (token) => {
         if (!token) return reject(new Error(`ws failed to listen on ${this.port}`))
         console.log(`ws listening on ws://localhost:${this.port}/ws`)
         resolve()
       })
-    })
+    }))
   }
 }
