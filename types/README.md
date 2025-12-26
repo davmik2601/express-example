@@ -57,8 +57,8 @@ types/
 {
   "compilerOptions": {
     "target": "es2024",
-    "module": "commonjs",
-    "moduleResolution": "node",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
     "checkJs": true,
     "allowJs": true,
     "noEmit": true,
@@ -67,8 +67,21 @@ types/
     "skipLibCheck": true,
     "noImplicitAny": true,
     "useUnknownInCatchVariables": false,
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false,
+    "exactOptionalPropertyTypes": false,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "strictPropertyInitialization": true,
+    "strictNullChecks": true,
     "baseUrl": "./",
-    "typeRoots": ["./node_modules/@types"]
+    "typeRoots": [
+      "./node_modules/@types"
+    ]
   },
   "include": [
     "src/**/*.js",
@@ -108,11 +121,23 @@ async function register(data) {}
 
 ```ts
 declare global {
+  // can be moved to a separate file like "express.d.ts" if needed
   namespace Express {
     interface Request {
       id: string,
       user?: AuthUserType,
       // ... other custom properties for req if implemented
+    }
+  }
+
+  // can be moved to a separate file like "env.d.ts" if needed
+  namespace NodeJS {
+    interface ProcessEnv {
+      NODE_ENV?: 'development' | 'production',
+      PORT?: string,
+      PG_HOST: string,
+      PG_USER: string,
+      // ... other env vars
     }
   }
 
@@ -145,6 +170,47 @@ export {}
 ```
 
 ---
+
+## Environment variables typing
+
+Environment variables are typed using **TypeScript declaration files** only.
+
+Env types are defined by extending `NodeJS.ProcessEnv`
+inside `types/global.d.ts` (or a dedicated `env.d.ts`).
+
+```ts
+declare global {
+  namespace NodeJS {
+    interface ProcessEnv {
+      NODE_ENV?: 'development' | 'production'
+      PORT?: string
+      PG_HOST: string
+      PG_USER: string
+      // ... other env vars
+    }
+  }
+}
+
+export {}
+```
+
+Rules:
+
+- All env variables must be declared here
+- Required env vars must not be optional
+- Optional vars must use `?`
+- Values are always `string` at runtime
+- This file contains **types only**, no runtime logic
+
+Usage in JavaScript:
+
+```js
+const host = process.env.PG_HOST
+const port = process.env.PORT
+
+// this will show an IDE err if PORT_X is not defined
+// const portX = process.env.PORT_X
+```
 
 ## Writing a type file
 
@@ -186,7 +252,7 @@ class AuthService {
 
 ```js
 /**
- * @param {import('express').Request} req
+ * @param {Express.Request & {body: Auth.RegisterDto}} req
  * @param {import('express').Response} res
  */
 async function register(req, res) {

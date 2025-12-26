@@ -29,7 +29,7 @@ export const validateSchema =
           writable: true,
         })
 
-        next()
+        return next()
       } catch (err) {
         let errorObj = {
           statusCode: 422,

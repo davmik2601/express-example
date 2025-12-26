@@ -16,7 +16,11 @@ class JwtService {
    * @returns {string}
    */
   generateToken(payload) {
-    return jwt.sign(payload, this.secretKey, {expiresIn: this.expire})
+    return jwt.sign(
+      payload,
+      this.secretKey,
+      this.expire === undefined ? undefined : {expiresIn: this.expire},
+    )
   }
 
   /**

@@ -2,11 +2,32 @@ declare global {
   /** Global types
    * * * * * * * * * * * * * * * * * * * * * * * * * */
 
+  // can be moved to a separate file like "express.d.ts" if needed
   namespace Express {
     interface Request {
-      id: string;
-      user?: AuthUserType;
+      id: string,
+      user?: AuthUserType,
       // other custom properties can be added here for req
+    }
+  }
+
+  // can be moved to a separate file like "env.d.ts" if needed
+  namespace NodeJS {
+    interface ProcessEnv {
+      NODE_ENV?: 'development' | 'production',
+      PORT?: string,
+      WS_PORT: string,
+      PG_HOST: string,
+      PG_PORT: string,
+      PG_USER: string,
+      PG_PASSWORD: string,
+      PG_DATABASE: string,
+      SENTRY_DSN: string,
+      JWT_SECRET: string,
+      JWT_EXPIRE: string,
+      AMQP_URL: string,
+      SALT?: string,
+      // other custom env variables can be added here
     }
   }
 
