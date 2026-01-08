@@ -1,5 +1,7 @@
 # Project Types Guide (JavaScript + JSDoc + .d.ts)
 
+Full Project example here: https://github.com/davmik2601/express-example
+
 This project is **pure JavaScript (Node.js)**.  
 It does **NOT** compile TypeScript.
 
@@ -115,6 +117,8 @@ async function register(data) {}
 
 `global.d.ts`:
 
+Full Example here: https://github.com/davmik2601/express-example/blob/main/types/global.d.ts
+
 - Extends Express request
 - Defines shared global types
 - Exposes namespaces (`Auth`, `Posts`, `Db`, etc.)
@@ -141,19 +145,21 @@ declare global {
     }
   }
 
-  type SuccessType = import('./success.type').SuccessType
+  type SuccessType = import('./success.type.d.ts').SuccessType
+  type LimitOffsetDto = import('./limit-offset.dto.d.ts').LimitOffsetDto
+  type MetaType = import('./meta.type.d.ts').MetaType
   // ... other global types
 
   namespace Auth {
-    type RegisterDto = import('./auth/dto/register.dto').RegisterDto
-    type LoginDto = import('./auth/dto/login.dto').LoginDto
-    type LoginType = import('./auth/types/login.type').LoginType
+    type RegisterDto = import('./auth/dto/register.dto.d.ts').RegisterDto
+    type LoginDto = import('./auth/dto/login.dto.d.ts').LoginDto
+    type LoginType = import('./auth/types/login.type.d.ts').LoginType
     // ... other auth types
   }
   
   namespace Post {
-    type GetPostsDto = import('./post/dto/get-posts.dto').GetPostsDto
-    type GetPostsType = import('./post/get-posts.type').GetPostsType
+    type GetPostsDto = import('./post/dto/get-posts.dto.d.ts').GetPostsDto
+    type GetPostsType = import('./post/get-posts.type.d.ts').GetPostsType
     // ... other post types
   }
   
@@ -252,7 +258,7 @@ class AuthService {
 
 ```js
 /**
- * @param {Express.Request & {body: Auth.RegisterDto}} req
+ * @param {import('express').Request<any, any, Auth.RegisterDto>} req
  * @param {import('express').Response} res
  */
 async function register(req, res) {
@@ -262,6 +268,16 @@ async function register(req, res) {
   // ...
 }
 ```
+
+> **Note:** import('express').Request<...> has 5 generic parameters:
+- 1- Params,
+- 2- ResBody,
+- 3- **ReqBody**,
+- 4- **ReqQuery**,
+- 5- Locals
+
+> The most important generic parameters for us are the **3-rd** and **4-th** ones - ReqBody and ReqQuery.
+In this example, we specify Auth.RegisterDto as the 3rd generic parameter, which means that req.body is typed as Auth.RegisterDto.
 
 ### Variables
 

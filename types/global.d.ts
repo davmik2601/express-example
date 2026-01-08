@@ -2,7 +2,7 @@ declare global {
   /** Global types
    * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-  // can be moved to a separate file like "express.d.ts" if needed
+    // can be moved to a separate file like "express.d.ts" if needed
   namespace Express {
     interface Request {
       id: string,
@@ -35,32 +35,33 @@ declare global {
     { [K in RequiredKeys<T>]: ZodTypeAny } &
     { [K in OptionalKeys<T>]?: ZodTypeAny }
 
-  type SuccessType = import('./success.type').SuccessType
-  type LimitOffsetDto = import('./limit-offset.dto').LimitOffsetDto
+  type SuccessType = import('./success.type.d.ts').SuccessType
+  type LimitOffsetDto = import('./limit-offset.dto.d.ts').LimitOffsetDto
   type MetaType = import('./meta.type').MetaType
 
-  type AuthRequestType = import('./auth/auth-request.type').AuthRequestType
-  type AuthUserType = import('./auth/auth-user.type').AuthUserType
+  type AuthRequestType<P = any, ResBody = any, ReqBody = any, ReqQuery = any, Locals = any> =
+    import('./auth/auth-request.type.d.ts').AuthRequestType<P, ResBody, ReqBody, ReqQuery, Locals>
+  type AuthUserType = import('./auth/auth-user.type.d.ts').AuthUserType
 
   /** Namespaces with types
    * * * * * * * * * * * * * * * * * * * * * * * * * */
 
   namespace Auth {
-    type LoginDto = import('./auth/dto/login.dto').LoginDto
-    type LoginType = import('./auth/login.type').LoginType
-    type RegisterDto = import('./auth/dto/register.dto').RegisterDto
+    type LoginDto = import('./auth/dto/login.dto.d.ts').LoginDto
+    type LoginType = import('./auth/login.type.d.ts').LoginType
+    type RegisterDto = import('./auth/dto/register.dto.d.ts').RegisterDto
   }
 
   namespace Posts {
-    type CreatePostDto = import('./post/dto/create-post.dto').CreatePostDto
-    type CreatePostType = import('./post/create-post.type').CreatePostType
-    type DeletePostDto = import('./post/dto/delete-post.dto').DeletePostDto
-    type GetPostsDto = import('./post/dto/get-posts.dto').GetPostsDto
-    type GetPostsType = import('./post/get-posts.type').GetPostsType
+    type CreatePostDto = import('./post/dto/create-post.dto.d.ts').CreatePostDto
+    type CreatePostType = import('./post/create-post.type.d.ts').CreatePostType
+    type DeletePostDto = import('./post/dto/delete-post.dto.d.ts').DeletePostDto
+    type GetPostsDto = import('./post/dto/get-posts.dto.d.ts').GetPostsDto
+    type GetPostsType = import('./post/get-posts.type.d.ts').GetPostsType
   }
 
   namespace Notifications {
-    type CreateNotificationDto = import('./notification/dto/create-notification.dto').CreateNotificationDto
+    type CreateNotificationDto = import('./notification/dto/create-notification.dto.d.ts').CreateNotificationDto
   }
 
   /** Db model types
