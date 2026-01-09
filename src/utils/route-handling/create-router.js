@@ -41,12 +41,7 @@ export const createRouter = () => {
       // wrap only functions AFTER the last middleware; leave middlewares as-is
       const wrapped = flat.map((h, i) =>
         typeof h === 'function' && i > lastMwIndex
-          ? routeHandler(
-            /** @type {(req: import('express').Request,
-             *          res: import('express').Response,
-             *          next?: import('express').NextFunction) => any}
-             */ (h),
-          )
+          ? routeHandler(/** @type {(req: Req, res: Res, next?: Next) => any} */ (h))
           : h,
       )
 

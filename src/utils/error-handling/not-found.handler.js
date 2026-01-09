@@ -1,9 +1,9 @@
 import {NotFoundError} from './http-exceptions.js'
 
 /**
- * @param {import('express').Request} req
- * @param {import('express').Response} _res
- * @param {import('express').NextFunction} next
+ * @param {Req} req
+ * @param {Res} _res
+ * @param {Next} next
  */
 export const notFoundHandler = (req, _res, next) => {
   next(new NotFoundError({

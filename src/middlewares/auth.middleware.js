@@ -6,9 +6,9 @@ import {getIP} from '../utils/get-ip.js'
 import {requestContext} from '../utils/request-context.js'
 
 /**
- * @param {import("express").Request} req
- * @param {import("express").Response} _res
- * @param {import("express").NextFunction} next
+ * @param {AuthReq} req
+ * @param {Res} _res
+ * @param {Next} next
  */
 export async function authMiddleware(req, _res, next) {
   const authHeader = req.headers['authorization']
@@ -17,6 +17,10 @@ export async function authMiddleware(req, _res, next) {
   if (!token) {
     return next(new UnauthorizedError())
   }
+
+  if (!req.user) return next(new UnauthorizedError())
+
+  console.log(req.user.id);
 
   const tokenInfo = jwtService.verifyToken(token)
 

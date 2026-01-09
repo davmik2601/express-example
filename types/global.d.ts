@@ -2,15 +2,6 @@ declare global {
   /** Global types
    * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-    // can be moved to a separate file like "express.d.ts" if needed
-  namespace Express {
-    interface Request {
-      id: string,
-      user?: AuthUserType,
-      // other custom properties can be added here for req
-    }
-  }
-
   // can be moved to a separate file like "env.d.ts" if needed
   namespace NodeJS {
     interface ProcessEnv {
@@ -39,8 +30,6 @@ declare global {
   type LimitOffsetDto = import('./limit-offset.dto.d.ts').LimitOffsetDto
   type MetaType = import('./meta.type').MetaType
 
-  type AuthRequestType<P = any, ResBody = any, ReqBody = any, ReqQuery = any, Locals = any> =
-    import('./auth/auth-request.type.d.ts').AuthRequestType<P, ResBody, ReqBody, ReqQuery, Locals>
   type AuthUserType = import('./auth/auth-user.type.d.ts').AuthUserType
 
   /** Namespaces with types

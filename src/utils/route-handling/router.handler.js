@@ -2,10 +2,9 @@
  * Wraps a controller function so it can return a value
  * and be sent automatically as JSON.
  *
- * @template ReqBody, ResBody
- * @param {(req: import('express').Request<{}, {}, ReqBody>,
- *         res: import('express').Response<ResBody>,
- *         next?: import('express').NextFunction) => any | Promise<any>} fn
+ * @param {(req: Req,
+ *         res: Res,
+ *         next?: Next) => any | Promise<any>} fn
  * @returns {import('express').RequestHandler}
  */
 export const routeHandler = (fn) => {

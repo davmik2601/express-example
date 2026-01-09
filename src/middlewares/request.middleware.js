@@ -3,9 +3,9 @@ import {requestContext} from '../utils/request-context.js'
 import * as Sentry from '@sentry/node'
 
 /**
- * @param {import("express").Request} req
- * @param {import("express").Response} res
- * @param {import("express").NextFunction} next
+ * @param {Req} req
+ * @param {Res} res
+ * @param {Next} next
  */
 export const requestMiddleware = (req, res, next) => {
   const requestId = /** @type string */ (req.headers['x-request-id'] || randomUUID())

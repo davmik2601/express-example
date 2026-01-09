@@ -3,7 +3,7 @@ import {postService} from '../services/post.service.js'
 class PostController {
   /**
    * Create a post
-   * @param {AuthRequestType<any, any, Posts.CreatePostDto>} req
+   * @param {AuthReq<Posts.CreatePostDto>} req
    */
   async createPost(req) {
     return postService.createPost(req.user.id, req.body)
@@ -11,7 +11,7 @@ class PostController {
 
   /**
    * Get user posts
-   * @param {AuthRequestType<any, any, any, Posts.GetPostsDto>} req
+   * @param {AuthReq<any, Posts.GetPostsDto>} req
    */
   async getPosts(req) {
     return postService.getPosts(req.user.id, req.query)
@@ -19,7 +19,7 @@ class PostController {
 
   /**
    * Delete the post
-   * @param {AuthRequestType<any, any, Posts.DeletePostDto>} req
+   * @param {AuthReq<Posts.DeletePostDto>} req
    */
   async deletePost(req) {
     return postService.deletePost(req.user.id, req.body.id)

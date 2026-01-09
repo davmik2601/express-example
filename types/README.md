@@ -115,8 +115,6 @@ async function register(data) {}
 
 ## global.d.ts (single source of truth)
 
-`global.d.ts`:
-
 Full Example here: https://github.com/davmik2601/express-example/blob/main/types/global.d.ts
 
 - Extends Express request
@@ -125,15 +123,6 @@ Full Example here: https://github.com/davmik2601/express-example/blob/main/types
 
 ```ts
 declare global {
-  // can be moved to a separate file like "express.d.ts" if needed
-  namespace Express {
-    interface Request {
-      id: string,
-      user?: AuthUserType,
-      // ... other custom properties for req if implemented
-    }
-  }
-
   // can be moved to a separate file like "env.d.ts" if needed
   namespace NodeJS {
     interface ProcessEnv {
@@ -170,6 +159,56 @@ declare global {
     type Post = import('./post/post.d.ts').Post
     // ... other db models
   }
+}
+
+export {}
+```
+### express.d.ts (express global types)
+Example here: https://github.com/davmik2601/express-example/blob/main/types/express.d.ts
+
+```ts
+import type {ParsedQs} from 'qs'
+
+declare global {
+  namespace Express {
+    // add here ALL global custom properties for global express req
+    interface Request {
+      id: string,
+
+      // AuthReq properties
+      user: AuthUserType,
+
+      // OtherReq properties
+      field1: string,
+      field2: string,
+
+      // ... other custom properties can be added here for req
+      // Important: here all properties MUST BE REQUIRED !!!
+    }
+  }
+
+  type Req<B = any, Q = ParsedQs, P = any> =
+    import('express').Request<P, any, B, Q, any>
+    | AuthReq<B, Q, P>
+    | OtherReq<B, Q, P>
+
+  type AuthReq<B = any, Q = ParsedQs, P = any> = Omit<
+    import('express').Request<P, any, B, Q, any>,
+    'field1' | 'field2'
+  > & { field1?: string, field2?: string }
+
+  type OtherReq<B = any, Q = ParsedQs, P = any> = Omit<
+    import('express').Request<P, any, B, Q, any>,
+    'user'
+  >
+
+  /** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+   * These are the default types from express
+   *
+   */
+  type Res<ResBody = any, Locals = any> = import('express').Response<ResBody, Locals>
+  type Next = import('express').NextFunction
+  type Err = any
 }
 
 export {}
@@ -258,8 +297,8 @@ class AuthService {
 
 ```js
 /**
- * @param {import('express').Request<any, any, Auth.RegisterDto>} req
- * @param {import('express').Response} res
+ * @param {Req<Auth.RegisterDto>} req
+ * @param {Res} res
  */
 async function register(req, res) {
   /** @type {Auth.RegisterDto} */
@@ -269,15 +308,17 @@ async function register(req, res) {
 }
 ```
 
-> **Note:** import('express').Request<...> has 5 generic parameters:
-- 1- Params,
-- 2- ResBody,
-- 3- **ReqBody**,
-- 4- **ReqQuery**,
-- 5- Locals
+`Req<Auth.RegisterDto>` is same as: 
+`import('express').Request<any, any, Auth.RegisterDto>`
 
-> The most important generic parameters for us are the **3-rd** and **4-th** ones - ReqBody and ReqQuery.
-In this example, we specify Auth.RegisterDto as the 3rd generic parameter, which means that req.body is typed as Auth.RegisterDto.
+> **Note:** `import('express').Request<...>` has 5 generic parameters:
+> - 1-Params, 2-ResBody, 3-**ReqBody**, 4-**ReqQuery**, 5-Locals
+> 
+> In our customized `Req<B, Q, P>`, we only expose 3 generic parameters:
+> - 1-ReqBody, 2-ReqQuery, 3-Params
+> 
+> The most important generic parameters for us are the 3-rd and 4-th ones (in our example with Req - 1-st and 2-nd) - ReqBody and ReqQuery. 
+> In this example, we specify Auth.RegisterDto as the 1-st generic parameter, which means that req.body is typed as Auth.RegisterDto.
 
 ### Variables
 

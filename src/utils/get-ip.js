@@ -1,6 +1,6 @@
 /**
  * Get IP address from request
- * @param {import('express').Request} req
+ * @param {Req} req
  * @returns {string} IP address
  */
 export function getIP(req) {
