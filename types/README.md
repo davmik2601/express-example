@@ -195,7 +195,7 @@ declare global {
   type AuthReq<B = any, Q = ParsedQs, P = any> = Omit<
     import('express').Request<P, any, B, Q, any>,
     'field1' | 'field2'
-  > & { field1?: string, field2?: string }
+  >
 
   type OtherReq<B = any, Q = ParsedQs, P = any> = Omit<
     import('express').Request<P, any, B, Q, any>,
