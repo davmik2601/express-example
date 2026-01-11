@@ -323,13 +323,11 @@ async function register(req, res) {
 ### Variables
 
 ```js
-/** @type {Db.User} */
-const user = await userModel.findById(id)
+// POSTGRES EXAMPLE
 
-// or
-
-/** @type {Pick<Db.User, 'id' | 'name' | 'email' | 'age'>} */
-const user = await pool.query(`
+const {rows: [user]} =
+  /** @type {{rows: Db.user[]}} */
+  await pool.query(`
     select id    as "id",
            name  as "name",
            email as "email",
@@ -337,6 +335,20 @@ const user = await pool.query(`
     from users 
     where id = $1
 `, [id])
+
+
+// MYSQL EXAMPLE
+
+const [[user]] =
+  /** @type {[Db.User[], *]} */
+  (await pool.query(`
+    select id    as id,
+           name  as name,
+           email as email,
+           age   as age
+    from users 
+    where id = ?
+`, [id]))
 ```
 
 ---
