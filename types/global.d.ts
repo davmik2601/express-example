@@ -22,10 +22,6 @@ declare global {
     }
   }
 
-  type ZodShapeFor<T> =
-    { [K in RequiredKeys<T>]: ZodTypeAny } &
-    { [K in OptionalKeys<T>]?: ZodTypeAny }
-
   type SuccessType = import('./success.type.d.ts').SuccessType
   type LimitOffsetDto = import('./limit-offset.dto.d.ts').LimitOffsetDto
   type MetaType = import('./meta.type').MetaType

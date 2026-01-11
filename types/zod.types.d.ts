@@ -1,3 +1,9 @@
+declare global {
+  type ZodShapeFor<T> =
+    { [K in RequiredKeys<T>]: ZodTypeAny } &
+    { [K in OptionalKeys<T>]?: ZodTypeAny }
+}
+
 type RequiredKeys<T> = {
   [K in keyof T]-?: undefined extends T[K] ? never : K
 }[keyof T]
@@ -5,3 +11,5 @@ type RequiredKeys<T> = {
 type OptionalKeys<T> = {
   [K in keyof T]-?: undefined extends T[K] ? K : never
 }[keyof T]
+
+export {}
