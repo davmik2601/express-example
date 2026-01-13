@@ -187,17 +187,17 @@ declare global {
     }
   }
 
-  type Req<B = any, Q = ParsedQs, P = any> =
+  type Req<B = any, Q = ParsedQs | any, P = any> =
     import('express').Request<P, any, B, Q, any>
     | AuthReq<B, Q, P>
     | OtherReq<B, Q, P>
 
-  type AuthReq<B = any, Q = ParsedQs, P = any> = Omit<
+  type AuthReq<B = any, Q = ParsedQs | any, P = any> = Omit<
     import('express').Request<P, any, B, Q, any>,
     'field1' | 'field2'
   >
 
-  type OtherReq<B = any, Q = ParsedQs, P = any> = Omit<
+  type OtherReq<B = any, Q = ParsedQs | any, P = any> = Omit<
     import('express').Request<P, any, B, Q, any>,
     'user'
   >
