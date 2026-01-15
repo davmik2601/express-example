@@ -47,7 +47,7 @@ types/
   success.type.d.ts
   limit-offset.dto.d.ts
   meta.type.d.ts
-  zod.types.d.ts
+  zod.d.ts
   ...
 ```
 
@@ -463,19 +463,19 @@ This utility maps:
 
 Add this **once** in `types/global.d.ts`:
 
-```ts
-type ZodShapeFor<T> =
-  { [K in RequiredKeys<T>]: ZodTypeAny } &
-  { [K in OptionalKeys<T>]?: ZodTypeAny }
-```
-
 ---
 
-### RequiredKeys / OptionalKeys helpers
+#### RequiredKeys / OptionalKeys helpers
 
-These helpers live in `types/zod.types.d.ts`:
+These helpers live in `types/zod.d.ts`:
 
 ```ts
+declare global {
+  type ZodShapeFor<T> =
+    { [K in RequiredKeys<T>]: ZodTypeAny } &
+    { [K in OptionalKeys<T>]?: ZodTypeAny }
+}
+
 type RequiredKeys<T> = {
   [K in keyof T]-?: undefined extends T[K] ? never : K
 }[keyof T]
@@ -483,6 +483,8 @@ type RequiredKeys<T> = {
 type OptionalKeys<T> = {
   [K in keyof T]-?: undefined extends T[K] ? K : never
 }[keyof T]
+
+export {}
 ```
 
 They allow TypeScript to **approximately understand**:
