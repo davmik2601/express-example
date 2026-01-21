@@ -31,7 +31,7 @@ export const validateSchema =
 
         return next()
       } catch (err) {
-        let errorObj = {
+        const errorObj = {
           statusCode: 422,
           field: '',
           code: '',
