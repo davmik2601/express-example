@@ -11,7 +11,8 @@ TypeScript is used **only for type-checking and IDE support** via:
 - JSDoc annotations in `.js` files
 - `.d.ts` files stored in `/types`
 
-This document explains **how types are structured**, **how to add new types**, and **how to use them in JavaScript code**.
+This document explains **how types are structured**, **how to add new types**, and **how to use them in JavaScript code
+**.
 
 ---
 
@@ -163,7 +164,9 @@ declare global {
 
 export {}
 ```
+
 ### express.d.ts (express global types)
+
 Example here: https://github.com/davmik2601/express-example/blob/main/types/express.d.ts
 
 ```ts
@@ -271,6 +274,7 @@ export interface RegisterDto {
 ```
 
 Rules:
+
 - Types only
 - No runtime logic
 - One responsibility per file
@@ -308,17 +312,19 @@ async function register(req, res) {
 }
 ```
 
-`Req<Auth.RegisterDto>` is same as: 
+`Req<Auth.RegisterDto>` is same as:
 `import('express').Request<any, any, Auth.RegisterDto>`
 
 > **Note:** `import('express').Request<...>` has 5 generic parameters:
 > - 1-Params, 2-ResBody, 3-**ReqBody**, 4-**ReqQuery**, 5-Locals
-> 
+>
 > In our customized `Req<B, Q, P>`, we only expose 3 generic parameters:
 > - 1-ReqBody, 2-ReqQuery, 3-Params
-> 
-> The most important generic parameters for us are the 3-rd and 4-th ones (in our example with Req - 1-st and 2-nd) - ReqBody and ReqQuery. 
-> In this example, we specify Auth.RegisterDto as the 1-st generic parameter, which means that req.body is typed as Auth.RegisterDto.
+>
+> The most important generic parameters for us are the 3-rd and 4-th ones (in our example with Req - 1-st and 2-nd) -
+> ReqBody and ReqQuery.
+> In this example, we specify Auth.RegisterDto as the 1-st generic parameter, which means that req.body is typed as
+> Auth.RegisterDto.
 
 ### Variables
 
@@ -470,19 +476,30 @@ Add this **once** in `types/global.d.ts`:
 These helpers live in `types/zod.d.ts`:
 
 ```ts
+import type {ZodTypeAny} from "zod"
+
 declare global {
+  type RequiredKeys<T> = {
+    [K in keyof T]-?: undefined extends T[K] ? never : K
+  }[keyof T]
+
+  type OptionalKeys<T> = {
+    [K in keyof T]-?: undefined extends T[K] ? K : never
+  }[keyof T]
+
+  type ZodSchemaFor<T> =
+    T extends readonly (infer U)[]
+      ? import("zod").ZodArray<ZodSchemaFor<U>>
+      : T extends (infer U)[]
+        ? import("zod").ZodArray<ZodSchemaFor<U>>
+        : T extends object
+          ? import("zod").ZodObject<ZodShapeFor<T>>
+          : ZodTypeAny
+
   type ZodShapeFor<T> =
-    { [K in RequiredKeys<T>]: ZodTypeAny } &
-    { [K in OptionalKeys<T>]?: ZodTypeAny }
+    & { [K in RequiredKeys<T>]: ZodSchemaFor<Exclude<T[K], undefined>> }
+    & { [K in OptionalKeys<T>]?: ZodSchemaFor<Exclude<T[K], undefined>> }
 }
-
-type RequiredKeys<T> = {
-  [K in keyof T]-?: undefined extends T[K] ? never : K
-}[keyof T]
-
-type OptionalKeys<T> = {
-  [K in keyof T]-?: undefined extends T[K] ? K : never
-}[keyof T]
 
 export {}
 ```
