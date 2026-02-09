@@ -1,6 +1,8 @@
 import amqplib from 'amqplib'
 
+/** @type {any} */
 let connection = null
+/** @type {import('amqplib').Channel | null} */
 let channel = null
 
 /**
@@ -26,5 +28,5 @@ export async function getChannel() {
   })
 
   channel = await connection.createChannel()
-  return channel
+  return /** @type import('amqplib').Channel */ (channel)
 }

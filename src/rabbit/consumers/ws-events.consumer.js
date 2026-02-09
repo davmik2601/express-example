@@ -3,6 +3,12 @@ import {WS_EVENTS_QUEUE} from '../rabbit-queues.js'
 import {wsClient} from '../../ws/ws-client.js'
 
 export class WsEventsConsumer extends Consumer {
+  /**
+   * @param {{
+   *   channel: import('amqplib').Channel
+   * }} options
+   * @param channel
+   */
   constructor({channel}) {
     super({
       queue: WS_EVENTS_QUEUE,

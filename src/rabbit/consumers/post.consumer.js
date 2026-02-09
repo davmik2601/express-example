@@ -18,10 +18,11 @@ export class PostConsumer extends Consumer {
 
   /**
    * @param {{type:string, data:any}} payload
-   * @param {import('amqplib').Message} msg
+   * @param {import('amqplib').Message} _msg
    * @returns {Promise<void>}
    */
-  async handle(payload, msg) { // msg available if you later need headers, deliveryTag, etc.
+  // msg available if you later need headers, deliveryTag, etc.
+  async handle(payload, _msg) {
     const {type, data} = payload || {}
 
     switch (type) {

@@ -56,6 +56,7 @@ export class Consumer {
   async _onRawMessage(msg) {
     if (!msg) return
 
+    /** @type {any} */
     let payload = null
 
     try {

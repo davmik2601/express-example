@@ -12,10 +12,11 @@ export class PostRpcConsumer extends RpcConsumer {
 
   /**
    * @param {{type:string, data:any}} payload
-   * @param {import('amqplib').Message} msg
+   * @param {import('amqplib').Message} _msg
    * @returns {Promise<any>}
    */
-  async handle(payload, msg) { // msg available if you later need correlationId, headers, etc.
+  // msg available if you later need correlationId, headers, etc.
+  async handle(payload, _msg) {
     const {type, data} = payload || {}
 
     switch (type) {

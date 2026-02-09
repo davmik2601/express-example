@@ -66,6 +66,7 @@ export class RpcConsumer {
   async _onRawMessage(msg) {
     if (!msg) return
 
+    /** @type any */
     let payload = null
 
     try {
@@ -123,8 +124,8 @@ export class RpcConsumer {
       {
         correlationId: msg.properties.correlationId,
         headers: {
-          request_id: headers.request_id,
-          user_id: headers.user_id ? headers.user_id : undefined,
+          request_id: headers['request_id'],
+          user_id: headers['user_id'] ? headers['user_id'] : undefined,
         },
       },
     )

@@ -45,6 +45,8 @@ export class RpcClient {
 
       await ch.consume(
         replyQueue,
+
+        /** @param {import('amqplib').ConsumeMessage | null} msg */
         (msg) => {
           if (!msg) return
           if (msg.properties.correlationId !== correlationId) return
@@ -57,7 +59,7 @@ export class RpcClient {
           } catch (err) {
             Sentry.withScope((scope) => {
               this._makeRpcClientScope(scope, {type, data, correlationId, requestId, userId})
-              scope.setContext('rpc_reply_raw', msg.content.toString())
+              scope.setContext('rpc_reply_raw', { value: msg.content.toString() })
               Sentry.captureException(err)
             })
             reject(err)
@@ -81,6 +83,16 @@ export class RpcClient {
     })
   }
 
+  /**
+   * @param {import('@sentry/node').Scope} scope
+   * @param {{
+   *   type: string,
+   *   data: any,
+   *   correlationId: string,
+   *   requestId?: string|number,
+   *   userId?: string|number,
+   * }} context
+   */
   _makeRpcClientScope(scope, {type, data, correlationId, requestId, userId}) {
     scope.setTag('source', 'amqp')
     scope.setTag('kind', 'rpc-client')

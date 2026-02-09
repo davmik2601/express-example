@@ -55,7 +55,7 @@ export class Producer {
           kind: 'producer',
           queue: this.queue,
           payload,
-          msg: null,
+          // msg: undefined,
         })
         if (requestId) scope.setTag('request_id', String(requestId))
         if (userId) scope.setUser({id: String(userId)})
