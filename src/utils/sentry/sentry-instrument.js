@@ -1,18 +1,22 @@
+import 'dotenv/config'
 import * as Sentry from '@sentry/node'
 import {nodeProfilingIntegration} from '@sentry/profiling-node'
 
 Sentry.init({
   dsn: process.env.SENTRY_DSN,
   tracesSampleRate: 0.2,
+  // optional: Express v5 can trigger warnings
+  disableInstrumentationWarnings: true,
   // debug: true,
   integrations: [
     Sentry.expressIntegration(),
     nodeProfilingIntegration(),
-    Sentry.prismaIntegration(),
+    Sentry.requestDataIntegration(),
     ...Sentry.getAutoPerformanceIntegrations(),
     Sentry.mysql2Integration(),
+    Sentry.postgresIntegration(),
     Sentry.redisIntegration(),
-    Sentry.requestDataIntegration(),
+    Sentry.amqplibIntegration(),
   ],
   beforeSend(event, _hint) {
     /** if needed, we can filter out events here */

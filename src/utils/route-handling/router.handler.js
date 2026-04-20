@@ -12,12 +12,16 @@ export const routeHandler = (fn) => {
     try {
       const result = await fn(req, res, next)
 
-      // if controller already responded or returned nothing, don't auto-json
-      if (res.headersSent || typeof result === 'undefined') return
+      if (res.headersSent) return
+
+      if (typeof result === 'undefined') {
+        res.sendStatus(204)
+        return
+      }
 
       res.json(result)
     } catch (err) {
-      next(err) // Passes error to Express error handler
+      next(err)
     }
   }
 }
